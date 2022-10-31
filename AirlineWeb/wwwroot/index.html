@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Pan Australian Airways - Webhook Registration</title>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="display-3 text-center my-4">Pan Australian Airways</h1>
+        <h3 class="display-5 text-center my-4">Webhook Registration</h3>
+
+        <div id="alertSuccess" class="alert alert-success">
+            <strong>Success</strong> <label id="successMessage">Webhook registered.</label>
+        </div>
+
+        <div id="alertDanger" class="alert alert-danger">
+            <strong>Danger</strong> <label id="dangerMessage">Please check the log files.</label>
+        </div>
+
+        <div id="registration">
+            <div class="form-group">
+                <label for="webhook">Enter your Webhook URI</label>
+                <input id="webhook" class="form-control form-control-lg" type="text" placeholder="Enter URI">
+                <small class="form-text text-muted">Your Webhook URI will be shared.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="webhookType">Webhook Type</label>
+                <select id="webhookType" class="form-control">
+                    <option>Price Change</option>
+                    <option>Seat Availability</option>
+                    <option>Flight Delays & Distruptions</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <button id="register" class="btn btn-primary btn-block" type="submit">Register</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var registerButton = document.getElementById('register');
+
+        var webhookURI = document.getElementById('webhook');
+        var webhookType = document.getElementById('webhookType');
+        var successBox = document.getElementById('alertSuccess');
+        var dangerBox = document.getElementById('alertDanger');
+        var dangerMessage = document.getElementById('dangerMessage');
+        var successMessage = document.getElementById('successMessage');
+
+        function hideBoxes() {
+            successBox.style.display = dangerBox.style.display = 'none';
+        }
+
+        hideBoxes();
+
+        registerButton.onclick = function () {
+            hideBoxes();
+
+            if (webhookURI.value == '') {
+                dangerMessage.innerHTML = 'Please enter a URI';
+                dangerBox.style.display = 'block';
+            } else {
+                (async () => {
+                    const response = await fetch('https://localhost:7260/api/webhooksubscriptions', {
+                        method: 'post',
+                        body: JSON.stringify({ webhookUri: webhookURI.value, webhookType: webhookType.value }),
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    const content = await response.json();
+                    successMessage.innerHTML = 'Webhook registered please use secret: ' + content.secret + ' to validate inbound request.'
+                    successBox.style.display = 'block';
+
+                    console.log(content);
+                })();
+            }
+        };
+    </script>
+</body>
+
+</html>

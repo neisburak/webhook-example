@@ -1,6 +1,5 @@
-using AirlineWeb.Data;
-using AirlineWeb.MessageBus;
 using Microsoft.EntityFrameworkCore;
+using TravelAgentWeb.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,12 +10,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<DataContext>(options =>
+builder.Services.AddDbContext<TravelAgentContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer"));
 });
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-builder.Services.AddSingleton<IMessageBusClient, MessageBusClient>();
 
 var app = builder.Build();
 
@@ -28,8 +25,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-app.UseStaticFiles();
 
 app.UseAuthorization();
 
